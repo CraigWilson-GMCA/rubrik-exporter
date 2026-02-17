@@ -12,12 +12,13 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 
 	"github.com/claranet/rubrik-exporter/rubrik"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/log"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var rubrikAPI *rubrik.Rubrik
@@ -34,7 +35,7 @@ var (
 func main() {
 	flag.Parse()
 
-	log.Debug("Create Rubrik Exporter instance")
+	log.Print("Create Rubrik Exporter instance")
 	rubrikAPI = rubrik.NewRubrik(*rubrikURL, *rubrikUser, *rubrikPassword)
 
 	prometheus.MustRegister(NewRubrikStatsExport())
@@ -42,12 +43,12 @@ func main() {
 	prometheus.MustRegister(NewArchiveLocation())
 	prometheus.MustRegister(NewManagedVolume())
 
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html><head><title>Rubrik Exporter</title></head><body><h1>Rubrik Exporter</h1><p><a href="/metrics">Metrics</a></p></body></html>`))
 	})
 
-	log.Debugf("Starting Server: %s", *listenAddress)
+	log.Printf("Starting Server: %s", *listenAddress)
 	err := http.ListenAndServe(*listenAddress, nil)
 	if err != nil {
 		log.Fatal(err)

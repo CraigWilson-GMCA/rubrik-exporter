@@ -14,11 +14,10 @@ import (
 	//	"os"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/prometheus/log"
 )
 
 type RequestParams struct {
@@ -36,11 +35,11 @@ type Rubrik struct {
 }
 
 func (r *Rubrik) makeRequest(reqType string, action string, p RequestParams) (*http.Response, error) {
-	log.Debugf("Is logged in: %t", r.isLoggedIn)
+	log.Printf("Is logged in: %t", r.isLoggedIn)
 
 	_url := r.url + action
 
-	log.Infof("Requested action: %s", action)
+	log.Printf("Requested action: %s", action)
 
 	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 	var netClient = http.Client{Transport: tr}
@@ -48,7 +47,7 @@ func (r *Rubrik) makeRequest(reqType string, action string, p RequestParams) (*h
 	body := p.body
 
 	_url += "?" + p.params.Encode()
-	log.Debugf("Request full URL: %s", _url)
+	log.Printf("Request full URL: %s", _url)
 
 	req, err := http.NewRequest(reqType, _url, strings.NewReader(body))
 	if err != nil {
@@ -69,7 +68,7 @@ func (r *Rubrik) makeRequest(reqType string, action string, p RequestParams) (*h
 // NewRubrik - Creates a new Rubrik API instance and login to it
 func NewRubrik(url string, username string, password string) *Rubrik {
 
-	log.Debug("Create new API Instance")
+	log.Print("Create new API Instance")
 	session := &Rubrik{
 		url:          url,
 		username:     username,
@@ -78,7 +77,7 @@ func NewRubrik(url string, username string, password string) *Rubrik {
 		isLoggedIn:   false,
 	}
 	session.Login()
-	log.Info("Session-Token: %s", session.sessionToken)
+	log.Printf("Session-Token: %s", session.sessionToken)
 
 	return session
 }

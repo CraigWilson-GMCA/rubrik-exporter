@@ -19,12 +19,47 @@ Commandline Options
 Easy to use
 =============
 
-Using Docker 
+### Using Docker 
 
     docker run --detached --publish 9477:9477 claranet/rubrik-exporter \
                           -rubrik.url https://myrubrik.company.org \
                           -rubrik.username "prometheus@local" \
                           -rubrik.password 'SeCure'
+
+### Building as a Binary
+
+Prerequisites:
+- Go 1.25 or later
+
+**Build:**
+
+    make build
+
+Or manually:
+
+    go build -o rubrik-exporter .
+
+**Run:**
+
+    ./rubrik-exporter -rubrik.url https://myrubrik.company.org \
+                      -rubrik.username "prometheus@local" \
+                      -rubrik.password 'SeCure'
+
+Or using the Makefile with environment variables:
+
+    RUBRIK_URL=https://myrubrik.company.org \
+    RUBRIK_USER=prometheus@local \
+    RUBRIK_PASSWORD=SeCure \
+    make run
+
+**Clean up:**
+
+    make clean
+
+**Other Makefile targets:**
+
+    make deps           # Download dependencies
+    make docker-build   # Build Docker image locally
 
 Exported Metrics
 ==================

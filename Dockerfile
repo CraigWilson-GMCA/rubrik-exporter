@@ -1,9 +1,9 @@
-FROM golang:1.11 AS builder
+FROM golang:1.25 AS builder
 
 
 WORKDIR /go/src/github.com/claranet/rubrik-exporter
 COPY . .
-RUN go get
+RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w'
 
 #ENTRYPOINT [ "/go/src/github.com/claranet/rubrik-exporter/rubrik-exporter" ]

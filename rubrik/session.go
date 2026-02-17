@@ -13,9 +13,8 @@ package rubrik
 import (
 	"crypto/tls"
 	"encoding/json"
+	"log"
 	"net/http"
-
-	"github.com/prometheus/log"
 )
 
 type Session struct {
