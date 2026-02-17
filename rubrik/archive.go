@@ -30,7 +30,11 @@ type Location struct {
 
 // GetArchiveLocations ...
 func (r Rubrik) GetArchiveLocations() []Location {
-	resp, _ := r.makeRequest("GET", "/api/internal/archive/location", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/internal/archive/location", RequestParams{})
+	if err != nil || resp == nil {
+		return []Location{}
+	}
+	defer resp.Body.Close()
 	var data LocationList
 	decoder := json.NewDecoder(resp.Body)
 	decoder.Decode(&data)

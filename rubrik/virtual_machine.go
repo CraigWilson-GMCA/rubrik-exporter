@@ -38,7 +38,11 @@ func (r Rubrik) ListAllVM() []VirtualMachine {
 
 // ListVmwareVM retrieve a List of all known VMware VM's
 func (r Rubrik) ListVmwareVM() []VirtualMachine {
-	resp, _ := r.makeRequest("GET", "/api/v1/vmware/vm", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/v1/vmware/vm", RequestParams{})
+	if err != nil || resp == nil {
+		return []VirtualMachine{}
+	}
+	defer resp.Body.Close()
 
 	data := json.NewDecoder(resp.Body)
 	var s VirtualMachineList
@@ -48,7 +52,11 @@ func (r Rubrik) ListVmwareVM() []VirtualMachine {
 
 // ListNutanixVM retrieve a List of all known VMware VM's
 func (r Rubrik) ListNutanixVM() []VirtualMachine {
-	resp, _ := r.makeRequest("GET", "/api/internal/nutanix/vm", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/internal/nutanix/vm", RequestParams{})
+	if err != nil || resp == nil {
+		return []VirtualMachine{}
+	}
+	defer resp.Body.Close()
 
 	data := json.NewDecoder(resp.Body)
 	var s VirtualMachineList
@@ -58,7 +66,11 @@ func (r Rubrik) ListNutanixVM() []VirtualMachine {
 
 // ListHypervVM retrieve a List of all known VMware VM's
 func (r Rubrik) ListHypervVM() []VirtualMachine {
-	resp, _ := r.makeRequest("GET", "/api/internal/hyperv/vm", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/internal/hyperv/vm", RequestParams{})
+	if err != nil || resp == nil {
+		return []VirtualMachine{}
+	}
+	defer resp.Body.Close()
 
 	data := json.NewDecoder(resp.Body)
 	var s VirtualMachineList

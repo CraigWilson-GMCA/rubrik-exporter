@@ -62,6 +62,14 @@ func (r *Rubrik) makeRequest(reqType string, action string, p RequestParams) (*h
 		return nil, err
 	}
 
+	// Check HTTP status code
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		log.Printf("API Error: HTTP %d from %s", resp.StatusCode, action)
+		resp.Body.Close()
+		// Return empty response with error to prevent JSON parsing of error pages
+		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, action)
+	}
+
 	return resp, nil
 }
 

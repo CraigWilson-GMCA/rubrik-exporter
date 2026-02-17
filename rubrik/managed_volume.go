@@ -36,7 +36,11 @@ type ManagedVolume struct {
  *
  */
 func (r Rubrik) GetManagedVolumes() []ManagedVolume {
-	resp, _ := r.makeRequest("GET", "/api/internal/managed_volume", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/internal/managed_volume", RequestParams{})
+	if err != nil || resp == nil {
+		return []ManagedVolume{}
+	}
+	defer resp.Body.Close()
 
 	var l ManagedVolumeList
 	decoder := json.NewDecoder(resp.Body)

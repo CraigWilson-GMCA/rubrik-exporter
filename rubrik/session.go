@@ -42,6 +42,7 @@ func (r *Rubrik) Login() error {
 		log.Fatal(err)
 		return err
 	}
+	defer resp.Body.Close()
 
 	data := json.NewDecoder(resp.Body)
 	var s Session
@@ -54,5 +55,8 @@ func (r *Rubrik) Login() error {
 }
 
 func (r *Rubrik) Logout() {
-	r.makeRequest("DELETE", "/api/v1/session", RequestParams{})
+	resp, _ := r.makeRequest("DELETE", "/api/v1/session", RequestParams{})
+	if resp != nil {
+		resp.Body.Close()
+	}
 }

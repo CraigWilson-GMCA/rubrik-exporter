@@ -14,6 +14,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/claranet/rubrik-exporter/rubrik"
 
@@ -43,8 +44,30 @@ func main() {
 	prometheus.MustRegister(NewArchiveLocation())
 	prometheus.MustRegister(NewManagedVolume())
 
-	http.Handle("/metrics", promhttp.Handler())
+	metricsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Metrics request from %s - User-Agent: %s", r.RemoteAddr, r.Header.Get("User-Agent"))
+		promhttp.Handler().ServeHTTP(w, r)
+	})
+
+	// Serve metrics at both /metrics and / for compatibility
+	http.Handle("/metrics", metricsHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// If request is for metrics (Accept header or direct access), serve metrics
+		acceptHeader := r.Header.Get("Accept")
+		userAgent := r.Header.Get("User-Agent")
+		
+		// Serve metrics if it's from Prometheus/Grafana or has json in Accept header
+		if strings.Contains(acceptHeader, "text/plain") || 
+		   strings.Contains(acceptHeader, "application/json") ||
+		   strings.Contains(userAgent, "Prometheus") ||
+		   strings.Contains(userAgent, "Grafana") ||
+		   r.URL.Path == "/" {
+			metricsHandler.ServeHTTP(w, r)
+			return
+		}
+		
+		// Otherwise show HTML welcome page for browsers
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write([]byte(`<html><head><title>Rubrik Exporter</title></head><body><h1>Rubrik Exporter</h1><p><a href="/metrics">Metrics</a></p></body></html>`))
 	})
 

@@ -44,7 +44,11 @@ type NodeStat struct {
 
 // GetNodes - Returns the List of all Rubrik Nodes
 func (r Rubrik) GetNodes() []Node {
-	resp, _ := r.makeRequest("GET", "/api/internal/node", RequestParams{})
+	resp, err := r.makeRequest("GET", "/api/internal/node", RequestParams{})
+	if err != nil || resp == nil {
+		return []Node{}
+	}
+	defer resp.Body.Close()
 
 	var l NodeList
 	decoder := json.NewDecoder(resp.Body)
@@ -55,10 +59,14 @@ func (r Rubrik) GetNodes() []Node {
 
 // GetNodeStats ...
 func (r Rubrik) GetNodeStats(id string) NodeStat {
-	resp, _ := r.makeRequest(
+	resp, err := r.makeRequest(
 		"GET",
 		fmt.Sprintf("/api/internal/node/%s/stats", id),
 		RequestParams{params: url.Values{"range": []string{"-10min"}}})
+	if err != nil || resp == nil {
+		return NodeStat{}
+	}
+	defer resp.Body.Close()
 
 	var result NodeStat
 	decoder := json.NewDecoder(resp.Body)
